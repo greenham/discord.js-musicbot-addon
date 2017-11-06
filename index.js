@@ -253,7 +253,7 @@ module.exports = function (client, options) {
 	}
 
 	function isDJ(member) {
-		return ((member.id == BOT_OWNER_ID) || (member.roles.find('name', DJ_ROLE_NAME));
+		return ((member.id == BOT_OWNER_ID) || (member.roles.find('name', DJ_ROLE_NAME)));
 	}
 
 	/**
