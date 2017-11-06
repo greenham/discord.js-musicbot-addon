@@ -4,9 +4,8 @@
  */
 
 // const YoutubeDL = require('youtube-dl');
-// const ytdl = require('ytdl-core');
-
-const stream = require('youtube-audio-stream');
+const ytdl = require('ytdl-core');
+//const stream = require('youtube-audio-stream');
 const search = require('youtube-search');
 const ypi = require('youtube-playlist-info');
 const Discord = require('discord.js');
@@ -62,6 +61,7 @@ module.exports = function (client, options) {
 	const OWNER_OVER = (options && options.ownerOverMember) || false;
 	const BOT_OWNER_ID = (options && options.botOwner) || null;
 	const LOGGING = (options && options.logging) || true;
+	const DJ_ROLE_NAME = (options && options.djRoleName) || 'dj';
 
 	//Init errors.
 	if (process.version.slice(1).split('.')[0] < 8) throw new Error('Node 8.0.0 or higher was not found, please update Node.js.');
@@ -187,6 +187,11 @@ module.exports = function (client, options) {
 		process.exit(1);
 	}
 
+	if (typeof DJ_ROLE_NAME !== 'string') {
+		console.log(new TypeError(`djRoleName must be a string`));
+		process.exit(1);
+	}
+
 	//Misc.
 	if (GLOBAL && MAX_QUEUE_SIZE < 50) console.warn(`global queues are enabled while maxQueueSize is below 50! Recommended to use a higher size.`);
 
@@ -243,8 +248,12 @@ module.exports = function (client, options) {
 	 * @returns {boolean} -
 	 */
 	function isAdmin(member) {
-		if (OWNER_OVER && member.id === BOT_OWNER_ID) return member.hasPermission("ADMINISTRATOR");
+		if (OWNER_OVER && member.id === BOT_OWNER_ID) return true;
 		return member.hasPermission("ADMINISTRATOR");
+	}
+
+	function isDJ(member) {
+		return ((member.id == BOT_OWNER_ID) || (member.roles.find('name', DJ_ROLE_NAME));
 	}
 
 	/**
@@ -259,6 +268,7 @@ module.exports = function (client, options) {
 		if (ALLOW_ALL_SKIP) return true;
 		else if (queue[0].requester === member.id) return true;
 		else if (isAdmin(member)) return true;
+		else if (isDJ(member)) return true;
 		else return false;
 	}
 
@@ -273,6 +283,7 @@ module.exports = function (client, options) {
 		if (ALLOW_ALL_VOL) return true;
 		else if (queue[0].requester === member.id) return true;
 		else if (isAdmin(member)) return true;
+		else if (isDJ(member)) return true;
 		else return false;
 	}
 
@@ -686,7 +697,7 @@ module.exports = function (client, options) {
 
 			// Play the video.
 			msg.channel.send(note('note', 'Now Playing: ' + video.title)).then(() => {
-				let dispatcher = connection.playStream(stream(video.link), {seek: 0, volume: (DEFAULT_VOLUME/100)});
+				let dispatcher = connection.playStream(ytdl(video.link), {seek: 0, volume: (DEFAULT_VOLUME/100)});
 
 				connection.on('error', (error) => {
 					// Skip to the next song.
