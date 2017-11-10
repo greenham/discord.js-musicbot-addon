@@ -13,6 +13,7 @@ const EventEmitter = require('events');
 
 class Emitter extends EventEmitter {}
 const emitter = new Emitter();
+emitter.setMaxListeners(0);
 
 /**
  * Takes a discord.js client and turns it into a music bot.
@@ -313,7 +314,7 @@ module.exports = function (client, options) {
 		 if (!suffix) {
 			 const embed = new Discord.RichEmbed()
 			 .setAuthor("Commands", msg.author.displayAvatarURL)
-			 .setDescription(`Commands with a * require Admin perms. Use \`${PREFIX}musichelp command\` for help on usage.`)
+			 .setDescription(`Commands with a * require Admin perms. Use \`${PREFIX}${HELP_CMD} command\` for help on usage.`)
 			 .addField(HELP_CMD, `Displays this text.`)
 			 .addField(PLAY_CMD, `Queue a song by url or search.`)
 			 .addField(SKIP_CMD, `Skip a song or mutli songs.`)
@@ -329,13 +330,13 @@ module.exports = function (client, options) {
 		 	if (suffix.includes(PLAY_CMD)) {
 				const embed = new Discord.RichEmbed()
 				.setAuthor(`${PREFIX}${PLAY_CMD}`, client.user.avatarURL)
-				.setDescription(`Addes a song to the queue.\n**__Usage:__** ${PREFIX}${PLAY_CMD} URL|search for something.`)
+				.setDescription(`Adds a song to the queue.\n**__Usage:__** ${PREFIX}${PLAY_CMD} URL|search for something.`)
 				.setColor(0x27e33d)
 				msg.channel.send({embed});
 			} else if (suffix.includes(SKIP_CMD)) {
 				const embed = new Discord.RichEmbed()
 	 		 .setAuthor(`${PREFIX}${SKIP_CMD}`, client.user.avatarURL)
-	 		 .setDescription(`Skips the playing song or mutli songs. You must be the person that queued the song to skip it, or admin.\n**__Usage:__** ${PREFIX}${SKIP_CMD} [numer of songs]`)
+	 		 .setDescription(`Skips the playing song or multiple songs. You must be the person that queued the song to skip it, or have the DJ role.\n**__Usage:__** ${PREFIX}${SKIP_CMD} [numer of songs]`)
 			 .setColor(0x27e33d)
 	 		 msg.channel.send({embed});
 		 } else if (suffix.includes(QUEUE_CMD)) {
@@ -359,7 +360,7 @@ module.exports = function (client, options) {
 		} else if (suffix.includes(VOLUME_CMD)) {
 			 const embed = new Discord.RichEmbed()
 			.setAuthor(`${PREFIX}${VOLUME_CMD}`, client.user.avatarURL)
-			.setDescription(`Adjusts the streams volume. Must be admin.\n**__Usage:__** ${PREFIX}${VOLUME_CMD} <1 to 200>`)
+			.setDescription(`Adjusts the stream volume. Must have DJ role.\n**__Usage:__** ${PREFIX}${VOLUME_CMD} <1 to 200>`)
 			.setColor(0x27e33d)
 			msg.channel.send({embed});
 		} else if (suffix.includes(LEAVE_CMD)) {
@@ -375,7 +376,7 @@ module.exports = function (client, options) {
 			.setColor(0x27e33d)
 			msg.channel.send({embed});
 			} else {
-				msg.channel.send(note('fail', `${suffix} is not a vlaid command!`));
+				msg.channel.send(note('fail', `${suffix} is not a valid command!`));
 			};
 		};
 	};
@@ -389,7 +390,7 @@ module.exports = function (client, options) {
 	 */
 	async function play(msg, suffix) {
 		// Make sure the user is in a voice channel.
-		if (msg.member.voiceChannel === undefined) return msg.channel.send(note('fail', 'You\'re not in a voice channel~'));
+		if (msg.member.voiceChannel === undefined) return msg.channel.send(note('fail', 'You\'re not in a voice channel!'));
 
 		// Make sure the suffix exists.
 		if (!suffix) return msg.channel.send(note('fail', 'No video specified!'));
