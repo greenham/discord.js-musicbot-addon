@@ -317,7 +317,7 @@ module.exports = function (client, options) {
 		 if (!suffix) {
 			 const embed = new Discord.RichEmbed()
 			 .setAuthor("Commands", msg.author.displayAvatarURL)
-			 .setDescription(`Commands with a * require Admin perms. Use \`${PREFIX}${HELP_CMD} command\` for help on usage.`)
+			 .setDescription(`Commands with a * require the DJ role '${DJ_ROLE_NAME}'. Use \`${PREFIX}${HELP_CMD} command\` for help on usage.`)
 			 .addField(HELP_CMD, `Displays this text.`)
 			 .addField(PLAY_CMD, `Queue a song by url or search.`)
 			 .addField(SKIP_CMD, `Skip a song or mutli songs.`)
@@ -437,8 +437,8 @@ module.exports = function (client, options) {
 						function endrun() {
 							var qvids = queuedVids.toString().replace(/,/g, '\n');
 							var svids = skippedVideos.toString().replace(/,/g, '\n');
-							if (qvids.length > 1000) qvids = 'Over character count, replaced...';
-							if (svids.length > 1000) svids = 'Over character count, replaced...';
+							/*if (qvids.length > 1000) qvids = 'Over character count, replaced...';
+							if (svids.length > 1000) svids = 'Over character count, replaced...';*/
 
 							if (svids != ""){
 								msg.channel.send(note('wrap', `Queued:\n${qvids}\nSkipped: (Max Queue)\n${svids}`), {split: true});
