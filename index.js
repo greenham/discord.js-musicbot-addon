@@ -11,6 +11,7 @@ const ypi = require('youtube-playlist-info');
 const Discord = require('discord.js');
 const EventEmitter = require('events');
 
+// @hello wtf is this even used for?
 class Emitter extends EventEmitter {}
 const emitter = new Emitter();
 emitter.setMaxListeners(0);
