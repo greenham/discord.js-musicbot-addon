@@ -1,7 +1,8 @@
 Bug Fixes:
- ☐ Maintain volume level through a queue
+ ☐ Maintain volume level through a queue @started(17-11-17 09:45)
  ☐ Look into "Over character count, replaced..." when queueing a playlist
  ☐ Replace "Commands with a * require Admin perms" with "...require DJ role"
+ ☐ Return current volume when no suffix is provided with "vol"
 
 Features to Implement:
  ☐ Add a "join" command which will have to bot connect to the voice channel of the requesting user

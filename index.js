@@ -206,6 +206,8 @@ module.exports = function (client, options) {
 	// Create an object of queues.
 	let queues = {};
 
+	let currentVolume = DEFAULT_VOLUME;
+
 	// Catch message events.
 	client.on('message', msg => {
 		const message = msg.content.trim();
@@ -646,12 +648,18 @@ module.exports = function (client, options) {
 		// Get the dispatcher
 		const dispatcher = voiceConnection.player.dispatcher;
 
+		if (suffix.length === 0) {
+			return msg.channel.send(note('note', 'Current volume level is: ' + dispatcher.volume));
+		}
+
 		if (suffix > 200 || suffix < 0) return msg.channel.send(note('fail', 'Volume out of range!')).then((response) => {
 			response.delete(5000);
 		});
 
 		msg.channel.send(note('note', 'Volume set to ' + suffix));
 		dispatcher.setVolume((suffix/100));
+
+		currentVolume = suffix;
 	}
 
 	/**
@@ -699,7 +707,7 @@ module.exports = function (client, options) {
 
 			// Play the video.
 			msg.channel.send(note('note', 'Now Playing: ' + video.title)).then(() => {
-				let dispatcher = connection.playStream(ytdl(video.link), {seek: 0, volume: (DEFAULT_VOLUME/100)});
+				let dispatcher = connection.playStream(ytdl(video.link), {seek: 0, volume: (currentVolume/100)});
 
 				connection.on('error', (error) => {
 					// Skip to the next song.
