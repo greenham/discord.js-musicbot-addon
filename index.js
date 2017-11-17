@@ -649,7 +649,7 @@ module.exports = function (client, options) {
 		const dispatcher = voiceConnection.player.dispatcher;
 
 		if (suffix.length === 0) {
-			return msg.channel.send(note('note', 'Current volume level is: ' + dispatcher.volume));
+			return msg.channel.send(note('note', 'Current volume level is: ' + dispatcher.volume*100));
 		}
 
 		if (suffix > 200 || suffix < 0) return msg.channel.send(note('fail', 'Volume out of range!')).then((response) => {
