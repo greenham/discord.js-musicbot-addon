@@ -1,23 +1,36 @@
 Bug Fixes:
+ ☐ If just a playlist ID is passed in as suffix, it only queues as 1 track @low
  ✔ Maintain volume level through a queue @started(17-11-17 09:45) @done (17-11-17 10:02) @lasted(0:17)
  ✔ Return current volume when no suffix is provided with "vol" @done (17-11-17 10:04)
  ✔ Replace "Commands with a * require Admin perms" with "...require DJ role" @done (17-11-17 10:05)
  ✔ Look into "Over character count, replaced..." when queueing a playlist @started(17-11-17 10:06) @done (17-11-17 10:17) @lasted(0:11)
+ ✔ Requesting playlists with a video in the URL as well triggers an error: @done (17-11-17 11:22)
+   TypeError:  Cannot set property 'requester' of undefined​
+   !play https://www.youtube.com/watch?v=eLyeHlMK1Oo&list=PL5F0E72C3DE5AB719
+ ✔ Watch out for '(node:2410) MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 error listeners added. Use emitter.setMaxListeners() to increase limit' @done (17-11-17 11:12)
 
 Features to Implement:
- ☐ Support playing from livestreams if nothing is queued
-   - If a user issues a "play" command without specifying a URL, pick randomly from some known livestreams
-   - This will put the bot into "livestream" mode
-   - "livestream" mode allows anyone to skip a track, regardless of role
-   - adding a new song to the queue and using skip will take the bot out of "livestream" mode
-   - Eventually, support genres so that commands like "!play lofi" or "!play synthwave" will work
+ ✔ Support playing from livestreams if nothing is queued @done (17-11-17 10:44)
+ ☐ Support genres/moods so that commands like "!play lofi" or "!play synthwave" or "!play chill" will work with livestreams/playlists
+   - Manually create playlists on youtube for each desired genre/mood (one playlist can correspond to multiple genres/moods)
+     Genres/Moods:
+       - lofi
+       - synthwave
+       - chill
+       - house
+       - edm
+ ☐ Move fallbackStreams to config.json
+ ☐ Prompt user to select between queueing individual video or playlist when both a video and playlist are requested
+   - send message, start a collector, act on response (1/2, v/p)
+ ☐ Detect when a playlist ID is passed in and queue the playlist
 
 Ideas/Requests:
+ ☐ If passed a playlist ID directly, queue playlist?
  ☐ Support sources other than youtube
- ☐ Support named, per-user playlists
-   - !playlist create [short-name-of-list]
-   - !playlist add [video-url]
+ ☐ Support named playlists
+   - !playlist create [short-name-of-list] [playlist-url]
    - !play [short-name-of-list]
    - require unique name for playlist
+ ☐ Creating a playlist from a queue? Check youtube api?
  ☐ Use yt channels instead of specific livestreams and search/find streams on-the-fly
  ☐ Add a "join" command which will have to bot connect to the voice channel of the requesting user

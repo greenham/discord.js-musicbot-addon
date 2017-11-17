@@ -1,6 +1,7 @@
 /**
  * Original code nexu-dev, https://github.com/nexu-dev/discord.js-music
  * Tweeked by Demise.
+ * Then again by greenham.
  */
 
 // const YoutubeDL = require('youtube-dl');
@@ -9,12 +10,6 @@ const ytdl = require('ytdl-core');
 const search = require('youtube-search');
 const ypi = require('youtube-playlist-info');
 const Discord = require('discord.js');
-const EventEmitter = require('events');
-
-// @hello wtf is this even used for?
-class Emitter extends EventEmitter {}
-const emitter = new Emitter();
-emitter.setMaxListeners(0);
 
 /**
  * Takes a discord.js client and turns it into a music bot.
@@ -64,6 +59,7 @@ module.exports = function (client, options) {
 	const BOT_OWNER_ID = (options && options.botOwner) || null;
 	const LOGGING = (options && options.logging) || true;
 	const DJ_ROLE_NAME = (options && options.djRoleName) || 'dj';
+	const LIVESTREAMS = (options && options.livestreams) || [];
 
 	//Init errors.
 	if (process.version.slice(1).split('.')[0] < 8) throw new Error('Node 8.0.0 or higher was not found, please update Node.js.');
@@ -191,6 +187,11 @@ module.exports = function (client, options) {
 
 	if (typeof DJ_ROLE_NAME !== 'string') {
 		console.log(new TypeError(`djRoleName must be a string`));
+		process.exit(1);
+	}
+
+	if (Array.isArray(LIVESTREAMS) === false) {
+		console.log(new TypeError(`livestreams must be an array`));
 		process.exit(1);
 	}
 
@@ -396,7 +397,18 @@ module.exports = function (client, options) {
 		if (msg.member.voiceChannel === undefined) return msg.channel.send(note('fail', 'You\'re not in a voice channel!'));
 
 		// Make sure the suffix exists.
-		if (!suffix) return msg.channel.send(note('fail', 'No video specified!'));
+		if (!suffix) {
+			// If it doesn't, fallback to livestreams
+			if (LIVESTREAMS.length > 0) {
+				return msg.channel.send(`Queue is empty, play songs with \`${PREFIX}${PLAY_CMD} [video-url]\` (playing from livestreams until then)`).then(() => {
+				  let livestream = LIVESTREAMS[Math.floor(Math.random()*LIVESTREAMS.length)];
+					msg.content = `${PREFIX}${PLAY_CMD} ${livestream}`;
+					play(msg, livestream);
+				});
+			} else {
+				return msg.channel.send(note('fail', 'No video specified and no livestreams configured!'));
+			}
+		}
 
 		// Get the queue.
 		const queue = getQueue(msg.guild.id);
@@ -408,7 +420,12 @@ module.exports = function (client, options) {
 
 		// Get the video information.
 		msg.channel.send(note('note', 'Searching...')).then(response => {
-			var searchstring = suffix
+			var searchstring = suffix;
+			// If both a video and playlist are requested, queue the video only
+			if (searchstring.includes('watch') && searchstring.includes('list')) {
+				searchstring = searchstring.toString().split('&list')[0];
+			}
+
 			if (searchstring.includes('/playlist?list=')) {
 				response.edit(note('note', 'Playlist detected! Fetching...')).then(response => {
 					//Get the playlist ID.
@@ -437,8 +454,6 @@ module.exports = function (client, options) {
 						function endrun() {
 							var qvids = queuedVids.toString().replace(/,/g, '\n');
 							var svids = skippedVideos.toString().replace(/,/g, '\n');
-							/*if (qvids.length > 1000) qvids = 'Over character count, replaced...';
-							if (svids.length > 1000) svids = 'Over character count, replaced...';*/
 
 							if (svids != ""){
 								msg.channel.send(note('wrap', `Queued:\n${qvids}\nSkipped: (Max Queue)\n${svids}`), {split: true});
@@ -455,7 +470,7 @@ module.exports = function (client, options) {
 					if (err) {
 						if (LOGGING) console.log(err);
 						const nerr = err.toString().split(':');
-						return response.edit(note('fail', `error occoured!\`\`\`\n${nerr[0]}: ${nerr[1]}\n\`\`\``));
+						return response.edit(note('fail', `error occurred!\`\`\`\n${nerr[0]}: ${nerr[1]}\n\`\`\``));
 					};
 
 					// console.log(results[0]);
