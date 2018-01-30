@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "discord.js": "^11.2.1",
+    "discord.js": "^11.3.0",
     "subsonic": "git+https://github.com/greenham/subsonic.git",
     "youtube-audio-stream": "0.0.50",
     "youtube-playlist-info": "^0.1.0",
@@ -15,12 +15,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/TheDemise/discord.js-musicbot-addon"
+    "url": "https://github.com/greenham/discord.js-musicbot-addon"
   },
   "bugs": {
-    "url": "https://github.com/TheDemise/discord.js-musicbot-addon/issues"
+    "url": "https://github.com/greenham/discord.js-musicbot-addon/issues"
   },
-  "homepage": "https://github.com/TheDemise/discord.js-musicbot-addon",
+  "homepage": "https://github.com/greenham/discord.js-musicbot-addon",
   "keywords": [
     "discord",
     "discord.js",
@@ -28,6 +28,6 @@
     "bot",
     "addon"
   ],
-  "author": "demisex",
+  "author": "greenham",
   "license": "ISC"
 }
