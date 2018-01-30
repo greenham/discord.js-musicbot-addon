@@ -1,4 +1,5 @@
 Bug Fixes:
+ ☐ Update alttpbot server to node 8 @critical
  ☐ If just a playlist ID is passed in as suffix, it only queues as 1 track @low
  ✔ Maintain volume level through a queue @started(17-11-17 09:45) @done (17-11-17 10:02) @lasted(0:17)
  ✔ Return current volume when no suffix is provided with "vol" @done (17-11-17 10:04)
@@ -19,6 +20,8 @@ Features to Implement:
        - chill
        - house
        - edm
+       - vgm
+         - https://www.youtube.com/playlist?list=PLiU36l-VAX_6sofGTOxMyRfLiwrjQCGck
  ☐ Move fallbackStreams to config.json
  ☐ Prompt user to select between queueing individual video or playlist when both a video and playlist are requested
    - send message, start a collector, act on response (1/2, v/p)
@@ -26,7 +29,7 @@ Features to Implement:
 
 Ideas/Requests:
  ☐ If passed a playlist ID directly, queue playlist?
- ☐ Support sources other than youtube
+ ☐ Support sources other than youtube (soundcloud, DLNA services)
  ☐ Support named playlists
    - !playlist create [short-name-of-list] [playlist-url]
    - !play [short-name-of-list]

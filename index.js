@@ -7,9 +7,10 @@
 // const YoutubeDL = require('youtube-dl');
 const ytdl = require('ytdl-core');
 //const stream = require('youtube-audio-stream');
-const search = require('youtube-search');
+const ytsearch = require('youtube-search');
 const ypi = require('youtube-playlist-info');
 const Discord = require('discord.js');
+const Subsonic = require('subsonic');
 
 /**
  * Takes a discord.js client and turns it into a music bot.
@@ -60,6 +61,7 @@ module.exports = function (client, options) {
 	const LOGGING = (options && options.logging) || true;
 	const DJ_ROLE_NAME = (options && options.djRoleName) || 'dj';
 	const LIVESTREAMS = (options && options.livestreams) || [];
+	const SUBSONIC = (options && options.subsonic) || {};
 
 	//Init errors.
 	if (process.version.slice(1).split('.')[0] < 8) throw new Error('Node 8.0.0 or higher was not found, please update Node.js.');
@@ -203,6 +205,15 @@ module.exports = function (client, options) {
 		maxResults: 1,
 		key: YOUTUBE_KEY
 	};
+
+	//Do Subsonic things here
+	let subsonic = false;
+	if (SUBSONIC && SUBSONIC.username && SUBSONIC.password && SUBSONIC.server) {
+		subsonic = new Subsonic(SUBSONIC);
+		subsonic.ping(function(err, res) {
+		  console.log(res.status);
+		});
+	}
 
 	// Create an object of queues.
 	let queues = {};
@@ -466,7 +477,7 @@ module.exports = function (client, options) {
 
 				})
 		  } else {
-		    search(searchstring, opts, function(err, results) {
+		    ytsearch(searchstring, opts, function(err, results) {
 					if (err) {
 						if (LOGGING) console.log(err);
 						const nerr = err.toString().split(':');
