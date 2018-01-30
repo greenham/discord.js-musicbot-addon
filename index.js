@@ -804,12 +804,20 @@ module.exports = function (client, options) {
     if (!suffix) {
        const embed = new Discord.RichEmbed()
        .setAuthor("Subsonic Commands", msg.author.displayAvatarURL)
-       .setDescription(`Commands to use with subsonic.`)
+       .setDescription(`Commands to use with subsonic:`)
+       .addField('artists', `List available artists in the library`)
        .addField('ping', `Ping the subsonic server to check status`)
        .setColor(0x27e33d)
        msg.channel.send({embed});
     } else {
-      if (suffix.includes('ping')) {
+      if (suffix.includes('artists')) {
+        subsonic.artists(function(err, res) {
+          const embed = new Discord.RichEmbed().setAuthor(`${PREFIX}${SUBSONIC.command} artists`, client.user.avatarURL);
+          if (err) embed.setDescription(err).setColor(0x8d100f);
+          if (res) embed.setDescription(res).setColor(0x27e33d);
+          msg.channel.send({embed});
+        });
+      } else if (suffix.includes('ping')) {
         subsonic.ping(function(err, res) {
           const embed = new Discord.RichEmbed().setAuthor(`${PREFIX}${SUBSONIC.command} ping`, client.user.avatarURL);
           if (err) embed.setDescription(err).setColor(0x8d100f);
