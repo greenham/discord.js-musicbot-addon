@@ -805,17 +805,26 @@ module.exports = function (client, options) {
        const embed = new Discord.RichEmbed()
        .setAuthor("Subsonic Commands", msg.author.displayAvatarURL)
        .setDescription(`Commands to use with subsonic:`)
-       .addField('artists', `List available artists in the library`)
+       .addField('rand', `Return a list of random songs from the server`)
        .addField('ping', `Ping the subsonic server to check status`)
        .setColor(0x27e33d)
        msg.channel.send({embed});
     } else {
-      if (suffix.includes('artists')) {
-        subsonic.artists(function(err, res) {
-          const embed = new Discord.RichEmbed().setAuthor(`${PREFIX}${SUBSONIC.command} artists`, client.user.avatarURL);
-          if (err) embed.setDescription(err).setColor(0x8d100f);
-          if (res) embed.setDescription(res).setColor(0x27e33d);
-          msg.channel.send({embed});
+      if (suffix.includes('play')) {
+        let id = suffix.split('play')[1].trim();
+        subsonic.get('stream', {id: id}, function(res) {
+          console.log(JSON.stringify(res));
+        });
+      } else if (suffix.includes('rand')) {
+        subsonic.get('getRandomSongs', function(res) {
+          const embed = new Discord.RichEmbed().setAuthor(`${PREFIX}${SUBSONIC.command} rand`, client.user.avatarURL);
+          if (res && res.randomSongs) {
+            embed.setDescription('Random Songs').setColor(0x27e33d);
+            res.randomSongs.song.forEach((song) => {
+              embed.addField(song.id, `${song.artist} - ${song.title}`);
+            });
+            msg.channel.send({embed});
+          }
         });
       } else if (suffix.includes('ping')) {
         subsonic.ping(function(err, res) {
