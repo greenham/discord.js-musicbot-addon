@@ -211,7 +211,8 @@ module.exports = function (client, options) {
 	if (SUBSONIC && SUBSONIC.username && SUBSONIC.password && SUBSONIC.server) {
 		subsonic = new Subsonic(SUBSONIC);
 		subsonic.ping(function(err, res) {
-		  console.log(res.status);
+			if (err) console.error(err);
+		  if (res) console.log(res);
 		});
 	}
 
