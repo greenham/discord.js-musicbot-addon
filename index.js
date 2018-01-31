@@ -739,7 +739,7 @@ module.exports = function (client, options) {
         if (item.source === 'youtube') {
           dispatcher = connection.playStream(ytdl(item.link), {seek: 0, volume: (currentVolume/100)});
         } else if (item.source === 'subsonic') {
-          dispatcher = connection.playStream(subsonic.stream(item.link), {seek: 0, volume: (currentVolume/100)});
+          dispatcher = connection.playStream(subsonic.stream(item.link, 'output.mp4'), {seek: 0, volume: (currentVolume/100)});
         }
         
         if (!dispatcher) return console.error('no dispatcher');
