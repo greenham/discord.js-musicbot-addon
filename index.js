@@ -11,6 +11,7 @@ const ytsearch = require('youtube-search');
 const ypi = require('youtube-playlist-info');
 const Discord = require('discord.js');
 const Subsonic = require('subsonic');
+const fs = require('fs');
 
 /**
  * Takes a discord.js client and turns it into a music bot.
@@ -739,10 +740,10 @@ module.exports = function (client, options) {
         if (item.source === 'youtube') {
           dispatcher = connection.playStream(ytdl(item.link), {seek: 0, volume: (currentVolume/100)});
         } else if (item.source === 'subsonic') {
-          dispatcher = connection.playStream(subsonic.stream(item.link, 'output.mp4'), {seek: 0, volume: (currentVolume/100)});
+          dispatcher = connection.playStream(subsonic.stream(item.link), {seek: 0, volume: (currentVolume/100)});
         }
         
-        if (!dispatcher) return console.error('no dispatcher');
+        //if (!dispatcher) return console.error('no dispatcher');
 
         connection.on('error', (error) => {
           // Skip to the next song.
