@@ -460,6 +460,7 @@ module.exports = function (client, options) {
                 results.link = `https://www.youtube.com/watch?v=` + newItems[i].resourceId.videoId;
                 results.description = " ";
                 results.requester = msg.author.id;
+                results.source = 'youtube';
 
                 queue.push(results);
                 queuedVids.push(results.title);
@@ -488,8 +489,8 @@ module.exports = function (client, options) {
             return response.edit(note('fail', `error occurred!\`\`\`\n${nerr[0]}: ${nerr[1]}\n\`\`\``));
           };
 
-          // console.log(results[0]);
           results[0].requester = msg.author.id;
+          results[0].source = 'youtube';
 
           response.edit(note('note', 'Queued: ' + results[0].title)).then(() => {
             queue.push(results[0]);
@@ -730,14 +731,18 @@ module.exports = function (client, options) {
       }
     }).then(connection => {
       // Get the first item in the queue.
-      const video = queue[0];
+      const item = queue[0];
 
-      // console.log(video.webpage_url);
-      //removed currently.
-
-      // Play the video.
-      msg.channel.send(note('note', 'Now Playing: ' + video.title)).then(() => {
-        let dispatcher = connection.playStream(ytdl(video.link), {seek: 0, volume: (currentVolume/100)});
+      // Play the song/video.
+      msg.channel.send(note('note', 'Now Playing: ' + item.title + ((item.artist) ? ' - ' + item.artist : ''))).then((response) => {
+        let dispatcher;
+        if (item.source === 'youtube') {
+          dispatcher = connection.playStream(ytdl(item.link), {seek: 0, volume: (currentVolume/100)});
+        } else if (item.source === 'subsonic') {
+          dispatcher = connection.playStream(subsonic.stream(item.link), {seek: 0, volume: (currentVolume/100)});
+        }
+        
+        if (!dispatcher) return console.error('no dispatcher');
 
         connection.on('error', (error) => {
           // Skip to the next song.
@@ -805,17 +810,51 @@ module.exports = function (client, options) {
        const embed = new Discord.RichEmbed()
        .setAuthor("Subsonic Commands", msg.author.displayAvatarURL)
        .setDescription(`Commands to use with subsonic:`)
+       .addField('play {song_id}', `Play/queue a specific song from the server`)
        .addField('rand', `Return a list of random songs from the server`)
-       .addField('ping', `Ping the subsonic server to check status`)
+       .addField('ping', `Ping the server to check status`)
        .setColor(0x27e33d)
        msg.channel.send({embed});
     } else {
       if (suffix.includes('play')) {
+        // Make sure the user is in a voice channel.
+        //if (msg.member.voiceChannel === undefined) return msg.channel.send(note('fail', 'You\'re not in a voice channel!'));
+
+        // Get the queue.
+        const queue = getQueue(msg.guild.id);
+
+        // Check if the queue has reached its maximum size.
+        if (queue.length >= MAX_QUEUE_SIZE) {
+          return msg.channel.send(note('fail', 'Maximum queue size reached!'));
+        }
+
         let id = suffix.split('play')[1].trim();
-        subsonic.get('stream', {id: id}, function(res) {
-          console.log(JSON.stringify(res));
+        if (!id) return msg.channel.send(note('fail', 'You must include a song ID!'));
+
+        // verify that this song exists on the subsonic server
+        // if it does, add it the queue with some special options so it gets processed appropriately
+        msg.channel.send(note('note', 'Searching...')).then(response => {
+          subsonic.song(id, (err, res) => {
+            if (err) {
+              if (LOGGING) console.error(err);
+              return response.edit(note('fail', 'No song found matching this ID!'));
+            }
+
+            // add to the queue
+            res.requester = msg.author.id;
+            res.source = 'subsonic';
+            res.link = subsonic.m3u8(id);
+            console.log(res.link);
+
+            response.edit(note('note', `Queued: ${res.title} - ${res.artist}`)).then((response) => {
+              queue.push(res);
+              // Play if only one element in the queue.
+              if (queue.length === 1) executeQueue(msg, queue);
+            }).catch(console.log);
+          });
         });
       } else if (suffix.includes('rand')) {
+        // @TODO: abstract and move this into the subsonic package
         subsonic.get('getRandomSongs', function(res) {
           const embed = new Discord.RichEmbed().setAuthor(`${PREFIX}${SUBSONIC.command} rand`, client.user.avatarURL);
           if (res && res.randomSongs) {
